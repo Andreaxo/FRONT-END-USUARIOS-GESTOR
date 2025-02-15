@@ -1,7 +1,7 @@
 import axios from "axios";
-import { useState } from "react";
-import '../styles/StyleCrearExperto.css'
-
+import { useState, useEffect } from "react";
+import { message } from "antd";
+import '../styles/StyleCrearExperto.css';
 
 const TIPOS_DOCUMENTO = [
   { value: "Cédula de ciudadanía", label: "Cédula de ciudadanía" },
@@ -27,87 +27,83 @@ const PREFERENCIAS_ALIMENTARIAS = [
 ];
 
 const CENTROS_FORMACION = [
-  { value: "Centro Atención Sector Agropecuario", label: "Centro Atención Sector Agropecuario" },
+  { value: "Centro Atención Sector Agropecuari", label: "Centro Atención Sector Agropecuario" },
   { value: "Centro de Diseño e Innovación Tecnológica Industrial", label: "Centro de Diseño e Innovación Tecnológica Industrial" },
   { value: "Centro de comercio y servicios", label: "Centro de comercio y servicios" }
 ];
 
-export const CrearExperto = ( { onClose } ) => {
 
-  const api = axios.create({
-    baseURL: 'http://localhost:4000/api/clientes',
-    timeout: 5000,
-    headers:  {
-      'Content-Type':
-      'aplication/json'
+export const ModificarExperto = ({ onClose, expertData }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Asegurarse de que el ID se capture correctamente
+  const [formData, setFormData] = useState({
+    id: expertData?.id || '',  // Cambiado de 0 a ''
+    name: expertData?.name || "",
+    lastName: expertData?.lastName || "",
+
+  });
+
+  // Actualizar useEffect para manejar mejor el ID
+  useEffect(() => {
+    if (expertData) {
+      console.log("ID recibido:", expertData.id); // Para debugging
+      setFormData(prev => ({
+        ...prev,
+        id: expertData.id,
+        name: expertData.name || "",
+        lastName: expertData.lastName || "",
+        area: expertData.area,
+        competitionName: expertData.competitionName,
+        formationCenter: expertData.formationCenter,
+      }));
     }
-  })
-    
-    const [formData, setFormData] = useState({
-        id: 0,
-        name: "",
-        rol: "",
-        birthdate: "",
-        documentType: "Cédula de ciudadanía",
-        documentNumber: "",
-        email: "",
-        phone: "",
-        bloodType: "O+",
-        dietPreferences: "Ninguna",
-        area: "",
-        formationCenter: "Centro de Diseño e Innovación Tecnológica Industrial",
-        senaVinculation: "",
-        competitionName: ""
-    });
-    
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState("");
+  }, [expertData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.id) {
+      message.error('ID no encontrado');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
-    setSuccessMessage("");
 
     try {
-      const response = await axios.post('http://localhost:4000/api/clientes', formData);
+      const response = await axios.put(
+        `http://localhost:4000/api/clientes/${formData.id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       
-      setSuccessMessage("Experto creado exitosamente");
-      console.log('Respuesta del servidor:', response.data);
-      
-      // Limpiar el formulario después de éxito
-      setFormData({
-        name: "",
-        rol: "",
-        birthdate: "",
-        documentType: "CC",
-        documentNumber: "",
-        email: "",
-        phone: "",
-        bloodType: "O+",
-        dietPreferences: "Ninguna",
-        area: "",
-        formationCenter: "Centro de Diseño e Innovación Tecnológica Industrial",
-        senaVinculation: "",
-        competitionName: ""
-      });
-
-      console.log('Información: ', response.data);
+      if (response.data) {
+        message.success("Experto modificado exitosamente");
+        if (onClose) {
+          onClose();
+        }
+      }
 
     } catch (error) {
-      setError(
+      console.error('Error al modificar:', error);
+      message.error(
         error.response?.data?.message || 
-        'Hubo un error al crear el experto'
+        'Error al modificar el experto'
       );
-      console.error('Error detallado:', error);
     } finally {
       setIsLoading(false);
     }
@@ -145,13 +141,18 @@ export const CrearExperto = ( { onClose } ) => {
     />
   );
 
-
-
   return (
     <div className="crear-experto">
-      <h1 className="titulo_crear">Crear Experto</h1>
+      <h1 className="titulo_crear">Modificar Experto</h1>
       
       <form onSubmit={handleSubmit} className="formulario_experto">
+
+      <input 
+          type="hidden" 
+          name="id" 
+          value={formData.id} 
+        />
+
         {renderInput({ name: "name", placeholder: "Nombre" })}
         {renderInput({ name: "lastName", placeholder: "Apellido" })}
         {renderInput({ name: "rol", placeholder: "Rol" })}
@@ -162,7 +163,7 @@ export const CrearExperto = ( { onClose } ) => {
         })}
         
         {renderSelect({
-          label: "Tipo de documento ",
+          label: "Tipo de documento",
           name: "documentType",
           options: TIPOS_DOCUMENTO
         })}
@@ -208,14 +209,22 @@ export const CrearExperto = ( { onClose } ) => {
         {renderInput({ name: "competitionName", placeholder: "Habilidad" })}
 
         <br/>
-        <button type="submit" className="submit-button">
-          Crear Experto
+        <button 
+          type="submit" 
+          className="submit-button"
+          disabled={isLoading}
+          onClick={handleSubmit}
+        >
+          {isLoading ? "Modificando..." : "Modificar Experto"}
         </button>
         
-        <button type="submit" onClick={onClose} className="submit-button">
+        <button 
+          type="button" 
+          onClick={onClose} 
+          className="submit-button"
+        >
           X
-         </button>
-
+        </button>
       </form>
     </div>
   );
