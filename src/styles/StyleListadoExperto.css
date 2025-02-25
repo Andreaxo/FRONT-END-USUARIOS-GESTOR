@@ -19,11 +19,27 @@
     margin: 0;
 }
 
-.crearExperto button{
+.titulo_expertos{
+    color: var(--color-white);
+    background-color: var(--color-black);
+    padding: 20px;
+    font-size: 2rem;
+    border-radius: 20px;
+    margin: 2rem;
+}
+
+.crearExperto{
     cursor: pointer;
     background-color: rgb(96, 242, 93);
-    padding: 15px;
-    margin: 10px;
+    padding: 1.5rem;
+    padding-right: 3rem;
+    padding-left: 3rem;
+    font-size: 1rem;
+    margin: 1.5rem 0rem 0rem ;
     border-radius: 20px;
+    border: solid black 5rem;
+
+
 }
+
 

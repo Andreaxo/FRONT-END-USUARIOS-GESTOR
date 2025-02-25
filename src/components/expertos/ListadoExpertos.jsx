@@ -3,10 +3,11 @@ import { SearchOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import Highlighter from 'react-highlight-words';
-import '../styles/StyleListadoExperto.css';
-import { CrearExperto } from "./CrearExperto";
-import { ModificarExperto } from "./ModificarExperto";
-import { VerExperto } from "./VerExperto";
+import '../../styles/StyleListadoExperto.css';
+import {CrearExperto} from '../../components/expertos/CrearExperto';
+import { ModificarExperto} from '../../components/expertos/ModificarExperto';
+import {VerExperto} from '../../components/expertos/VerExperto';
+
 
 export const ListadoExpertos = () => {
     const [dataSource, setDataSource] = useState([]);
@@ -122,6 +123,7 @@ export const ListadoExpertos = () => {
           width: '20%',
           ...getColumnSearchProps('nombre'),
           sorter: (a, b) => a.nombre.localeCompare(b.nombre),
+          
       },
       {
             title: 'Apellido',
@@ -155,7 +157,7 @@ export const ListadoExpertos = () => {
         },
         {title: 'Acciones',
         key: 'actions',
-        width: '15%',
+        width: '20%',
         render: (_, record) => (
             <Space size="middle">
                 <Button
@@ -229,9 +231,6 @@ export const ListadoExpertos = () => {
 
     return (
 <>
-      <div className="titulo_expertos">
-      <h2> Expertos </h2>
-      </div>
 
 
         <div className="listado-expertos-container">
@@ -241,11 +240,15 @@ export const ListadoExpertos = () => {
                 alignItems: 'center',
                 marginBottom: '1rem'
             }}>
-                <h2>Listado de Expertos</h2>
+        <div className="titulo_expertos">
+            <h2> Listado de Expertos </h2>
+        </div>
+
+
                 <Button 
-                    type="primary"
-                    className="submit-button"
+                    className="crearExperto"
                     onClick={() => setIsModalOpen(true)}
+                    style={{border: 'solid black 1px'}}
                 >
                     Crear Experto
                 </Button>
@@ -262,7 +265,12 @@ export const ListadoExpertos = () => {
                         `${range[0]}-${range[1]} de ${total} expertos`,
                 }}
                 scroll={{ x: true }}
-                
+                style={{ boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+                    margin: '0',
+                    borderRadius: '10px',
+                    
+                }}
+                rowClassName="ant-table-row"
                 
             ></Table>
 

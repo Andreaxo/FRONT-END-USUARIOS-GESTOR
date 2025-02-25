@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import '../styles/StyleCrearExperto.css'
+import '../../styles/StyleCrearExperto.css';
 
 
 const TIPOS_DOCUMENTO = [
@@ -9,55 +9,36 @@ const TIPOS_DOCUMENTO = [
   { value: "Cédula de extranjería", label: "Cédula de extranjería" }
 ];
 
-const TIPOS_SANGRE = [
-  { value: "O-", label: "O-" },
-  { value: "O+", label: "O+" },
-  { value: "A+", label: "A+" },
-  { value: "A-", label: "A-" },
-  { value: "B-", label: "B-" },
-  { value: "B+", label: "B+" },
-  { value: "AB-", label: "AB-" },
-  { value: "AB+", label: "AB+" }
-];
-
-const PREFERENCIAS_ALIMENTARIAS = [
-  { value: "Vegetariano", label: "Vegetariano" },
-  { value: "Vegano", label: "Vegano" },
-  { value: "Ninguna", label: "Ninguna" }
-];
-
 const CENTROS_FORMACION = [
   { value: "Centro Atención Sector Agropecuario", label: "Centro Atención Sector Agropecuario" },
   { value: "Centro de Diseño e Innovación Tecnológica Industrial", label: "Centro de Diseño e Innovación Tecnológica Industrial" },
   { value: "Centro de comercio y servicios", label: "Centro de comercio y servicios" }
 ];
 
-export const CrearExperto = ( { onClose } ) => {
 
-  const api = axios.create({
-    baseURL: 'http://localhost:4000/api/clientes',
-    timeout: 5000,
-    headers:  {
-      'Content-Type':
-      'aplication/json'
-    }
-  })
+const PROGRAMAS_FORMACION = [
+  { value: "Análisis y desarrollo de software", label: "Análisis y desarrollo de software" },
+  { value: "Multimedia", label: "Multimedia" },
+  { value: "Infraestructura", label: "Infraestructura" }
+];
+
+export const CrearAprendiz = ( { onClose } ) => {
     
     const [formData, setFormData] = useState({
         id: 0,
         name: "",
-        rol: "",
+        rol: "Aprendiz",
         birthdate: "",
         documentType: "Cédula de ciudadanía",
         documentNumber: "",
         email: "",
         phone: "",
-        bloodType: "O+",
-        dietPreferences: "Ninguna",
         area: "",
         formationCenter: "Centro de Diseño e Innovación Tecnológica Industrial",
-        senaVinculation: "",
-        competitionName: ""
+        competitionName: "",
+        programName: "",
+        indexCourse: 0,
+        strategyCompetition: "",
     });
     
     const handleChange = (e) => {
@@ -76,6 +57,7 @@ export const CrearExperto = ( { onClose } ) => {
     setIsLoading(true);
     setError(null);
     setSuccessMessage("");
+    window.location.reload();
 
     try {
       const response = await axios.post('http://localhost:4000/api/clientes', formData);
@@ -86,18 +68,18 @@ export const CrearExperto = ( { onClose } ) => {
       // Limpiar el formulario después de éxito
       setFormData({
         name: "",
-        rol: "",
+        rol: "Aprendiz",
         birthdate: "",
-        documentType: "CC",
+        documentType: "Cédula de ciudadanía",
         documentNumber: "",
         email: "",
         phone: "",
-        bloodType: "O+",
-        dietPreferences: "Ninguna",
         area: "",
         formationCenter: "Centro de Diseño e Innovación Tecnológica Industrial",
-        senaVinculation: "",
-        competitionName: ""
+        competitionName: "",
+        programName: "",
+        indexCourse: 0,
+        strategyCompetition: "",
       });
 
       console.log('Información: ', response.data);
@@ -105,7 +87,7 @@ export const CrearExperto = ( { onClose } ) => {
     } catch (error) {
       setError(
         error.response?.data?.message || 
-        'Hubo un error al crear el experto'
+        'Hubo un error al crear el aprendiz'
       );
       console.error('Error detallado:', error);
     } finally {
@@ -121,11 +103,11 @@ export const CrearExperto = ( { onClose } ) => {
       <select
         id={name}
         name={name}
-        value={formData[name]}
+        value={formData[name] || ""}
         onChange={handleChange}
         className="form-select"
       >
-        {options.map(option => (
+        {options?.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -133,19 +115,18 @@ export const CrearExperto = ( { onClose } ) => {
       </select>
     </div>
   );
-
-  const renderInput = ({ type = "text", name, placeholder }) => (
+  
+  const renderInput = ({ type = "text", name = "", placeholder = "", hidden = false}) => (
     <input
       type={type}
       name={name}
       placeholder={placeholder}
-      value={formData[name]}
+      value={formData[name] || ""}
       onChange={handleChange}
       className="form-input"
+      style={{ display: hidden ? 'none' : 'block' }}
     />
   );
-
-
 
   return (
     <div className="crear-experto">
@@ -154,7 +135,6 @@ export const CrearExperto = ( { onClose } ) => {
       <form onSubmit={handleSubmit} className="formulario_experto">
         {renderInput({ name: "name", placeholder: "Nombre" })}
         {renderInput({ name: "lastName", placeholder: "Apellido" })}
-        {renderInput({ name: "rol", placeholder: "Rol" })}
         {renderInput({ 
           type: "date", 
           name: "birthdate", 
@@ -162,7 +142,7 @@ export const CrearExperto = ( { onClose } ) => {
         })}
         
         {renderSelect({
-          label: "Tipo de documento ",
+          label: "Tipo de documento",
           name: "documentType",
           options: TIPOS_DOCUMENTO
         })}
@@ -182,40 +162,38 @@ export const CrearExperto = ( { onClose } ) => {
         })}
         
         {renderSelect({
-          label: "Tipo de Sangre",
-          name: "bloodType",
-          options: TIPOS_SANGRE
-        })}
-        
-        {renderSelect({
-          label: "Preferencias alimentarias",
-          name: "dietPreferences",
-          options: PREFERENCIAS_ALIMENTARIAS
-        })}
-        
-        {renderInput({ name: "area", placeholder: "Área" })}
-        
-        {renderSelect({
           label: "Centro de formación",
           name: "formationCenter",
           options: CENTROS_FORMACION
         })}
+        {renderSelect({
+          label: "Programa de formación",
+          name: "programName",
+          options: PROGRAMAS_FORMACION
+        })}
         
         {renderInput({ 
-          name: "senaVinculation", 
-          placeholder: "Vinculación SENA" 
+          name: "strategyCompetition", 
+          placeholder: "Competencia" 
         })}
-        {renderInput({ name: "competitionName", placeholder: "Habilidad" })}
+        {renderInput({ 
+          name: "competitionName", 
+          placeholder: "Habilidad" 
+        })}
+        {renderInput({ 
+          name: "rol", 
+          placeholder: "Rol",
+          hidden: true
+        })}
 
         <br/>
         <button type="submit" className="submit-button">
-          Crear Experto
+          Crear Aprendiz
         </button>
         
-        <button type="submit" onClick={onClose} className="submit-button">
+        <button type="button" onClick={onClose} className="submit-button">
           X
-         </button>
-
+        </button>
       </form>
     </div>
   );

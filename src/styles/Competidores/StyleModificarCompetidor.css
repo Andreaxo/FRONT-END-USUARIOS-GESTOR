@@ -1,3 +1,67 @@
+/* Estilos generales para los inputs y selects */
+.login_container-passwordinput,
+.login_container-userinput,
+.login_container-selectinput {
+    border: 1px solid var(--color-black); /* Borde negro */
+    height: 2.8rem;
+    border-radius: 1rem;
+    background-color: transparent;
+    padding-left: 10px;
+    outline: none;
+    width: 100% !important;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+/* Estilo para cuando los inputs o selects están enfocados */
+.login_container-passwordinput:focus,
+.login_container-userinput:focus,
+.login_container-selectinput:focus {
+    border-color: #4CAF50; /* Verde */
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+/* Estilo para los labels */
+.login__container--labelsubcontainer label,
+.standard-input-container label {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-220%);
+    color: var(--color-black);
+    pointer-events: none;
+    transition: .3s ease-in-out;
+    font-size: 12px;
+    background-color: var(--color-white);
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+/* Subcontendor para label e input/select */
+.login__container--labelsubcontainer {
+    position: relative;
+    margin-bottom: 1rem; /* Espacio entre campos */
+}
+
+/* Estilo específico para el select */
+.login_container-selectinput {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 30px;
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+}
+
+/* Estilo personalizado para cuando el select no es modificable */
+.login_container-selectinput[disabled] {
+  background-color: transparent; /* Mantener el fondo original */
+  color: inherit; /* Mantener el color original del texto */
+  border: 1px solid var(--color-black); /* Bordes definidos */
+  cursor: not-allowed; /* Cambiar el cursor a uno no permitidos */
+  pointer-events: none; /* Desactiva la interactividad */
+}
+
 /* Contenedor principal */
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
@@ -29,7 +93,7 @@
 }
 
 .crear-experto {
-  max-width: 1000px; /* Limitar el ancho máximo */
+  max-width: 800px; /* Limitar el ancho máximo */
   margin: 0 auto;
   padding: 0.5rem; /* Reducir padding */
   border-radius: 2rem; /* Hacer bordes más redondeados */

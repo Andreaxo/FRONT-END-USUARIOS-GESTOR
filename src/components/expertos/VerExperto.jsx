@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { message } from "antd";
-import '../styles/StyleCrearExperto.css';
+import '../../styles/StyleCrearExperto.css';
+import { SearchOutlined } from "@ant-design/icons";
 
 const TIPOS_DOCUMENTO = [
   { value: "Cédula de ciudadanía", label: "Cédula de ciudadanía" },
@@ -27,21 +28,55 @@ const PREFERENCIAS_ALIMENTARIAS = [
 ];
 
 const CENTROS_FORMACION = [
-  { value: "Centro Atención Sector Agropecuari", label: "Centro Atención Sector Agropecuario" },
+  { value: "Centro Atención Sector Agropecuario", label: "Centro Atención Sector Agropecuario" },
   { value: "Centro de Diseño e Innovación Tecnológica Industrial", label: "Centro de Diseño e Innovación Tecnológica Industrial" },
   { value: "Centro de comercio y servicios", label: "Centro de comercio y servicios" }
 ];
 
+  // Función auxiliar para formatear la fecha
+  const formatearFechaParaInput = (fechaString) => {
+    if (!fechaString) return '';
+    
+    // Maneja cadenas de fecha ISO
+    if (fechaString.includes('T')) {
+        const fecha = new Date(fechaString);
+        return fecha.toISOString().split('T')[0];
+    }
+    
+    // Si ya está en formato YYYY-MM-DD, devuélvela tal cual
+    if (fechaString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return fechaString;
+    }
+    
+    // Para cualquier otro formato, intenta convertir a YYYY-MM-DD
+    const fecha = new Date(fechaString);
+    if (isNaN(fecha.getTime())) return ''; // Devuelve cadena vacía si la fecha es inválida
+    
+    return fecha.toISOString().split('T')[0];
+  };
 
-export const ModificarExperto = ({ onClose, expertData }) => {
+export const VerExperto = ({ onClose, expertData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
   // Asegurarse de que el ID se capture correctamente
   const [formData, setFormData] = useState({
-    id: expertData?.id || '',  // Cambiado de 0 a ''
+    id: expertData?.id || '', 
     name: expertData?.name || "",
     lastName: expertData?.lastName || "",
+    rol: expertData?.rol || "",
+    documentType: expertData?.documentType || "",
+    documentNumber: expertData?.documentNumber || "",
+    documentDateOfissue: expertData?.documentDateOfissue || "",
+    email: expertData?.email || "",
+    birthdate: formatearFechaParaInput(expertData?.birthdate) || "",
+    phone: expertData?.phone || "",
+    area: expertData?.area || "",
+    senaVinculation: expertData?.senaVinculation || "",
+    formationCenter: expertData?.formationCenter || "",
+    bloodType: expertData?.bloodType || "",
+    dietPreferences: expertData?.dietPreferences || "",
+    competitionName: expertData?.competitionName || "",
 
   });
 
@@ -52,11 +87,21 @@ export const ModificarExperto = ({ onClose, expertData }) => {
       setFormData(prev => ({
         ...prev,
         id: expertData.id,
-        name: expertData.name || "",
-        lastName: expertData.lastName || "",
-        area: expertData.area,
-        competitionName: expertData.competitionName,
-        formationCenter: expertData.formationCenter,
+        name: expertData?.name || "",
+        lastName: expertData?.lastName || "",
+        rol: expertData?.rol || "",
+        documentType: expertData?.documentType || "",
+        documentNumber: expertData?.documentNumber || "",
+        documentDateOfissue: expertData?.documentDateOfissue || "",
+        email: expertData?.email || "",
+        birthdate: formatearFechaParaInput(expertData?.birthdate) || "",
+        phone: expertData?.phone || "",
+        area: expertData?.area || "",
+        senaVinculation: expertData?.senaVinculation || "",
+        formationCenter: expertData?.formationCenter || "",
+        bloodType: expertData?.bloodType || "",
+        dietPreferences: expertData?.dietPreferences || "",
+        competitionName: expertData?.competitionName || "",
       }));
     }
   }, [expertData]);
@@ -67,46 +112,6 @@ export const ModificarExperto = ({ onClose, expertData }) => {
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.id) {
-      message.error('ID no encontrado');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await axios.put(
-        `http://localhost:4000/api/clientes/${formData.id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      
-      if (response.data) {
-        message.success("Experto modificado exitosamente");
-        if (onClose) {
-          onClose();
-        }
-      }
-
-    } catch (error) {
-      console.error('Error al modificar:', error);
-      message.error(
-        error.response?.data?.message || 
-        'Error al modificar el experto'
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const renderSelect = ({ label, name, options }) => (
@@ -138,14 +143,15 @@ export const ModificarExperto = ({ onClose, expertData }) => {
       value={formData[name]}
       onChange={handleChange}
       className="form-input"
+      readOnly={true}
     />
   );
 
   return (
     <div className="crear-experto">
-      <h1 className="titulo_crear">Modificar Experto</h1>
+      <h1 className="titulo_crear">Experto Regional</h1>
       
-      <form onSubmit={handleSubmit} className="formulario_experto">
+      <form  className="formulario_experto">
 
       <input 
           type="hidden" 
@@ -157,7 +163,7 @@ export const ModificarExperto = ({ onClose, expertData }) => {
         {renderInput({ name: "lastName", placeholder: "Apellido" })}
         {renderInput({ name: "rol", placeholder: "Rol" })}
         {renderInput({ 
-          type: "date", 
+          type: "date",
           name: "birthdate", 
           placeholder: "Fecha de nacimiento" 
         })}
@@ -209,14 +215,7 @@ export const ModificarExperto = ({ onClose, expertData }) => {
         {renderInput({ name: "competitionName", placeholder: "Habilidad" })}
 
         <br/>
-        <button 
-          type="submit" 
-          className="submit-button"
-          disabled={isLoading}
-          onClick={handleSubmit}
-        >
-          {isLoading ? "Modificando..." : "Modificar Experto"}
-        </button>
+
         
         <button 
           type="button" 
